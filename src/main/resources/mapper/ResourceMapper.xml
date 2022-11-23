@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.madoor.resource_toolkit.mapper.ResourceMapper">
+    <select id="getTypeByName" resultType="integer">
+        select type_id from t_resource_type where resource_type = #{name}
+    </select>
+    <insert id="insert" parameterType="com.madoor.resource_toolkit.pojo.Resource" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO t_resource (resource_name, download, browse, updateTime, resource_type, period, `subject`,
+                                file_type, is_featured)
+        VALUES (#{resourceName},
+                0,
+                0,
+                #{updateTime},
+                #{resourceType},
+                #{period},
+                #{subject},
+                #{fileType},
+                #{isFeatured}
+            )
+    </insert>
+</mapper>
