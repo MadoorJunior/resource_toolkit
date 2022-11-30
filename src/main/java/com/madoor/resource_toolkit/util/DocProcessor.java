@@ -52,6 +52,11 @@ public class DocProcessor {
         KeyWordComputer<DicAnalysis> kwc = new KeyWordComputer<>(30);
         return kwc.computeArticleTfidf(title, content);
     }
+    public List<Keyword> getKeywords(MultipartFile file,String desc) throws ResourceTypeException, IOException {
+        String title = file.getOriginalFilename();
+        KeyWordComputer<DicAnalysis> kwc = new KeyWordComputer<>(30);
+        return kwc.computeArticleTfidf(title, desc);
+    }
     public String extractText(MultipartFile file) throws ResourceTypeException, IOException {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename.endsWith(".docx")){

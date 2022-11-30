@@ -15,12 +15,14 @@ import com.madoor.resource_toolkit.repository.ResourceRepository;
 import com.madoor.resource_toolkit.response.Response;
 import com.madoor.resource_toolkit.util.DocProcessor;
 import com.madoor.resource_toolkit.util.MinioUtil;
-import com.madoor.resource_toolkit.util.SimilarityUtil;
+import com.madoor.resource_toolkit.util.Video2Img;
 import lombok.RequiredArgsConstructor;
 import org.ansj.app.keyword.Keyword;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -37,8 +39,7 @@ public class ResourceService {
     private final MinioProperties minioProperties;
     private final DocProcessor docProcessor;
     private final ConceptRepository conceptRepository;
-    private final SimilarityUtil similarityUtil;
-    private final Neo4jTemplate neo4jTemplate;
+    private final Video2Img video2Img;
     public Response<Resource2ConceptPro> getResourceById(Long id){
         Resource2ConceptPro resource = resourceRepository.findResourceEntityById(id);
         if (resource!=null){
@@ -46,7 +47,7 @@ public class ResourceService {
         }
         return Response.fail("未找到相关资源");
     }
-    public Response<Object> upload(MultipartFile file, String section, String subject, String type) throws Exception {
+    public Response<?> upload(MultipartFile file, String section, String subject, String type, String desc) throws Exception {
         //校验学段，学科，资源类型是否符合规范
         Integer sectionId = sectionMapper.getIdByName(section);
         Integer subjectId = subjectMapper.getIdByName(subject);
@@ -64,6 +65,13 @@ public class ResourceService {
         int dot = originalFilename.lastIndexOf(".");
         String resourceName = originalFilename.substring(0,dot);
         String suffix = originalFilename.substring(dot+1);
+        List<Keyword> keywords;
+        //提取关键词
+        if (!suffix.equals("mp4")){
+            keywords = docProcessor.getKeywords(file);
+        }else {
+            keywords = docProcessor.getKeywords(file, desc);
+        }
         //构造资源信息
         Resource resource = Resource.builder().resourceName(resourceName)
                 .browse(0).download(0).updateTime(LocalDate.now()).resourceType(resourceType)
@@ -73,16 +81,18 @@ public class ResourceService {
         //上传Minio
         MinioUtil.uploadFile(minioProperties.getBucket(), file, originalFilename, path + resource.getId() + "." + suffix);
         //生成预览pdf
+        //生成封面
+
         if (suffix.equals("pptx")||suffix.equals("ppt")){
             docProcessor.uploadSlidePreview(file,previewPath + resource.getId() + ".pdf", resource.getId());
         } else if (suffix.equals("doc") || suffix.equals("docx")) {
             docProcessor.uploadWordPreview(file,previewPath + resource.getId() + ".pdf", resource.getId());
         } else if (suffix.equals("pdf")) {
             docProcessor.uploadThumbImg(file.getInputStream(), resource.getId());
+        }else if (suffix.equals("mp4")){
+            video2Img.getVideoPic(file, resource.getId());
         }
 
-        //提取关键词
-        List<Keyword> keywords = docProcessor.getKeywords(file);
         //计算资源相似度
 //        similarityUtil.calculate(keywords);
         //插入neo4j
@@ -101,6 +111,6 @@ public class ResourceService {
         //写入neo4j
         resourceRepository.save(resourceEntity);
         //生成缩略图
-        return Response.success(resource);
+        return Response.success("资源上传成功");
     }
 }

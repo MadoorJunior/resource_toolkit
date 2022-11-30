@@ -1,27 +1,17 @@
 package com.madoor.resource_toolkit.controller;
 
-import com.aspose.words.Document;
-import com.aspose.words.License;
-import com.aspose.words.SaveFormat;
 import com.madoor.resource_toolkit.config.MinioProperties;
-import com.madoor.resource_toolkit.entity.ResourceEntity;
 import com.madoor.resource_toolkit.projection.Resource2ConceptPro;
 import com.madoor.resource_toolkit.response.Response;
 import com.madoor.resource_toolkit.service.ResourceService;
 import com.madoor.resource_toolkit.util.DocProcessor;
-import com.madoor.resource_toolkit.util.MinioUtil;
-import com.madoor.resource_toolkit.util.WordToPdf;
+import com.madoor.resource_toolkit.util.Video2Img;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.io.File;
 
 @RestController
 @RequestMapping("/resource/toolkit/document/resource")
@@ -35,11 +25,12 @@ public class ResourceController {
         return resourceService.getResourceById(id);
     }
     @PostMapping("/upload")
-    public Response<Object> uploadResource(@RequestParam(name = "file") MultipartFile file,
-                                           @RequestParam(name = "section") String section,
-                                           @RequestParam(name = "subject") String subject,
-                                           @RequestParam(name = "type") String type) throws Exception {
-        return resourceService.upload(file,section,subject,type);
+    public Response<?> uploadResource(@RequestParam(name = "file") MultipartFile file,
+                                      @RequestParam(name = "section") String section,
+                                      @RequestParam(name = "subject") String subject,
+                                      @RequestParam(name = "type") String type,
+                                      @RequestParam(name = "desc",required = false) String desc) throws Exception {
+        return resourceService.upload(file,section,subject,type,desc);
     }
     @PostMapping("/convert")
     public void importPdfFile(@RequestParam("file") MultipartFile file) throws Exception {
