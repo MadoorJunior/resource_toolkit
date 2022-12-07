@@ -7,7 +7,7 @@
         select type_id from t_resource_type where resource_type = #{name}
     </select>
     <insert id="insert" parameterType="com.madoor.resource_toolkit.pojo.Resource" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
-        INSERT INTO t_resource (resource_name, download, browse, updateTime, resource_type, period, `subject`,
+        INSERT INTO t_resource_v2 (resource_name, download, browse, updateTime, resource_type, period, `subject`,
                                 file_type, is_featured)
         VALUES (#{resourceName},
                 0,
