@@ -20,4 +20,20 @@
                 #{isFeatured}
             )
     </insert>
+    <select id="getResourceFileInfo" resultType="com.madoor.resource_toolkit.dto.ResourceFileInfo">
+        SELECT
+            r.id,
+            d.url,
+            rt.resource_type as resourceType,
+            s.subject_name as subjectName,
+            p.period_name as periodName
+        FROM
+            t_resource r
+                JOIN t_document d ON r.tableResourceID = d.id
+                JOIN t_resource_type rt ON r.resource_type = rt.type_id
+                JOIN t_subject s ON r.`subject` = s.subject_id
+                JOIN t_period p ON r.period = p.period_id
+        WHERE
+            r.id = #{id}
+    </select>
 </mapper>

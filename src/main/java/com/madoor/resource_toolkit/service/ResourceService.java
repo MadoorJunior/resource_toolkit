@@ -1,6 +1,7 @@
 package com.madoor.resource_toolkit.service;
 
 import com.madoor.resource_toolkit.config.MinioProperties;
+import com.madoor.resource_toolkit.dto.ResourceFileInfo;
 import com.madoor.resource_toolkit.entity.ConceptEntity;
 import com.madoor.resource_toolkit.entity.ResourceEntity;
 import com.madoor.resource_toolkit.mapper.ResourceMapper;
@@ -17,17 +18,18 @@ import com.madoor.resource_toolkit.util.DocProcessor;
 import com.madoor.resource_toolkit.util.MinioUtil;
 import com.madoor.resource_toolkit.util.Video2Img;
 import lombok.RequiredArgsConstructor;
+import okhttp3.*;
 import org.ansj.app.keyword.Keyword;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -76,11 +78,7 @@ public class ResourceService {
         Resource resource = Resource.builder().resourceName(resourceName)
                 .browse(0).download(0).updateTime(LocalDate.now()).resourceType(resourceType)
                 .period(sectionId).subject(subjectId).fileType(suffix).isFeatured(0).build();
-        //资源信息入库MySql
-        resourceMapper.insert(resource);
-        //上传Minio
-        MinioUtil.uploadFile(minioProperties.getBucket(), file, originalFilename, path + resource.getId() + "." + suffix);
-        //生成预览pdf
+
         //生成封面
 
         if (suffix.equals("pptx")||suffix.equals("ppt")){
@@ -92,7 +90,11 @@ public class ResourceService {
         }else if (suffix.equals("mp4")){
             video2Img.getVideoPic(file, resource.getId());
         }
-
+        //资源信息入库MySql
+        resourceMapper.insert(resource);
+        //上传Minio
+        MinioUtil.uploadFile(minioProperties.getBucket(), file, originalFilename, path + resource.getId() + "." + suffix);
+        //生成预览pdf
         //计算资源相似度
 //        similarityUtil.calculate(keywords);
         //插入neo4j

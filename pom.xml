@@ -200,6 +200,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--    文件迁移    -->
+
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.60</version>
+        </dependency>
 
 
     </dependencies>

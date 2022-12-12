@@ -22,6 +22,7 @@ import org.apache.poi.hslf.usermodel.HSLFSlide;
 import org.apache.poi.hslf.usermodel.HSLFSlideShow;
 import org.apache.poi.hslf.usermodel.HSLFTextShape;
 import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.sl.usermodel.TextShape;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFShape;
@@ -59,13 +60,20 @@ public class DocProcessor {
     }
     public String extractText(MultipartFile file) throws ResourceTypeException, IOException {
         String originalFilename = file.getOriginalFilename();
+        ZipSecureFile.setMinInflateRatio(0);
         if (originalFilename.endsWith(".docx")){
             XWPFDocument document = new XWPFDocument(file.getInputStream());//使用XWPF组件XWPFDocument类获取文档内容
             XWPFWordExtractor extractor = new XWPFWordExtractor(document);
             return extractor.getText();
         } else if (originalFilename.endsWith(".doc")) {
-            HWPFDocument hwpfDocument = new HWPFDocument(file.getInputStream());
-            return hwpfDocument.getText().toString();
+            try{
+                HWPFDocument hwpfDocument = new HWPFDocument(file.getInputStream());
+                return hwpfDocument.getText().toString();
+            }catch (Exception e){
+                XWPFDocument document = new XWPFDocument(file.getInputStream());//使用XWPF组件XWPFDocument类获取文档内容
+                XWPFWordExtractor extractor = new XWPFWordExtractor(document);
+                return extractor.getText();
+            }
         } else if (originalFilename.endsWith(".pptx")) {
             XMLSlideShow ppt = new XMLSlideShow(file.getInputStream());
             StringBuilder stringBuilder = new StringBuilder();
