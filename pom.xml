@@ -201,7 +201,11 @@
             </exclusions>
         </dependency>
         <!--    文件迁移    -->
-
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.28.0-GA</version>
+        </dependency>
 
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -209,7 +213,20 @@
             <version>1.2.60</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.aspose</groupId>
+            <artifactId>aspose-slides</artifactId>
+            <version>22.10</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/aspose-slides-21.10-jdk16.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.aspose</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>21.11</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/aspose-words-21.11.0-jdk17.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
