@@ -78,7 +78,8 @@ public class ResourceService {
         Resource resource = Resource.builder().resourceName(resourceName)
                 .browse(0).download(0).updateTime(LocalDate.now()).resourceType(resourceType)
                 .period(sectionId).subject(subjectId).fileType(suffix).isFeatured(0).build();
-
+        //资源信息入库MySql
+        resourceMapper.insert(resource);
         //生成封面
 
         if (suffix.equals("pptx")||suffix.equals("ppt")){
@@ -90,8 +91,7 @@ public class ResourceService {
         }else if (suffix.equals("mp4")){
             video2Img.getVideoPic(file, resource.getId());
         }
-        //资源信息入库MySql
-        resourceMapper.insert(resource);
+
         //上传Minio
         MinioUtil.uploadFile(minioProperties.getBucket(), file, originalFilename, path + resource.getId() + "." + suffix);
         //生成预览pdf

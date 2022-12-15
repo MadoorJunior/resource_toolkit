@@ -15,7 +15,7 @@ minio:
   # 文件地址
   fileHost: http://223.2.54.119:9099
   # 存储桶名称
-  bucket: madfile
+  bucket: resource
   # 用户名
   access-key: minioadmin
   # 密码
